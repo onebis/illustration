@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  php:
+    build: ./php
+    volumes:
+      - ../backend/:/var/www
+    working_dir: /var/www
+    privileged: true
+
+  web:
+    build: ./nginx
+    ports:
+      - '8080:80'
+    volumes:
+      - ../backend/:/var/www/
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  mysql:
+    build: ./mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: illustrarion
+
+  node:
+    build: ./node
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../frontend/:/var/app/
+    tty: true
+    environment:
+      - WATCHPACK_POLLING=true
+    command: "npm run dev"
+
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - '8025:8025'
